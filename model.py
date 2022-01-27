@@ -3,8 +3,8 @@ from datetime import datetime, date
 
 class Categoria:
 
-    def __init__(self, descricao):
-        self.descricao = descricao
+    def __init__(self, nome):
+        self.nome = nome
 
 
 class Produto:
