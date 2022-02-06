@@ -14,23 +14,8 @@ class CategoriaDal:
 
     @classmethod
     def salvar(cls, categoria: Categoria):
-        with open("categoria.csv", "a") as arq:
+        with open("categoria.txt", "a") as arq:
             arq.writelines(f"{categoria.id}|{categoria.nome}\n") 
-
-    @classmethod
-    def remover(cls, categoria: Categoria):
-        cats = cls.ler()
-        for i in range(len(cats)):
-            if cats[i].id == categoria.id:
-                del cats[i]
-                break
-        
-        with open("categoria.csv", "w") as arq:
-            for c in cats:
-                arq.writelines(f"{c.id}|{c.nome}\n") 
-
-        #TODO: remover a categoria nos produtos relacionados
-
 
     @classmethod
     def alterar(cls, categoria: Categoria):
@@ -40,16 +25,29 @@ class CategoriaDal:
                 cats[i].nome = categoria.nome
                 break
         
-        with open("categoria.csv", "w") as arq:
+        with open("categoria.txt", "w") as arq:
             for c in cats:
                 arq.writelines(f"{c.id}|{c.nome}\n") 
 
         #TODO: remover a categoria nos produtos relacionados
 
+    @classmethod
+    def remover(cls, categoria: Categoria):
+        cats = cls.ler()
+        for i in range(len(cats)):
+            if cats[i].id == categoria.id:
+                del cats[i]
+                break
+        
+        with open("categoria.txt", "w") as arq:
+            for c in cats:
+                arq.writelines(f"{c.id}|{c.nome}\n") 
+
+        #TODO: remover a categoria nos produtos relacionados
 
     @classmethod
     def ler(cls):
-        with open("categoria.csv", "r") as arq:
+        with open("categoria.txt", "r") as arq:
             cls.categorias = arq.readlines()
 
         cls.categorias = list(map(lambda x: x.replace("\n", ""), cls.categorias))
@@ -60,68 +58,14 @@ class CategoriaDal:
             cat.append(Categoria(i[0], i[1]))
 
         return cat
-        
-
-class ProdutoDal:
-
-
-    @classmethod
-    def salvar(cls, produto: Produto, categoria: Categoria):
-        with open("produto.csv", "a") as arq:
-            arq.writelines(f"{produto.id}|{produto.nome}|{produto.preco}|{produto.categoria}\n")
-
-
-    @classmethod
-    def alterar(cls, produto: Produto, categoria: Categoria):
-        produtos = cls.ler()
-        for p in range(len(produtos)):
-            if produtos[p].id == produto.id:
-                produtos[p].nome = produto.nome
-                produtos[p].preco = produto.preco
-                produtos[p].categoria = produto.categoria
-                break
-        
-        with open("produto.csv", "w") as arq:
-            for p in produtos:
-                arq.writelines(f"{p.id}|{p.nome}|{p.preco}|{p.categoria}\n")
-
-
-    @classmethod
-    def remover(cls, produto: Produto):
-        produtos = cls.ler()
-        for p in range(len(produtos)):
-            if produtos[p].id == produto.id:
-                del produtos[p]
-                break
-        
-        with open("produto.csv", "w") as arq:
-            for p in produtos:
-                arq.writelines(f"{p.id}|{p.nome}|{p.preco}|{p.categoria}\n")
-
-        #TODO: remover produto do estoque
-
-
-    @classmethod
-    def ler(cls):
-        with open("produto.csv", "r") as arq:
-            cls.produtos = arq.readlines()
-
-        cls.produtos = list(map(lambda x: x.replace("\n", ""), cls.produtos))
-        cls.produtos = list(map(lambda x: x.split("|"), cls.produtos))
-
-        prods = []
-        for i in cls.produtos:
-            prods.append(Produto(i[0], i[1], i[2], i[3]))
-
-        return prods
-        
+             
 
 class EstoqueDal:
 
 
     @classmethod
     def adicionar(cls, produto: Produto, quantidade):
-        with open("estoque.csv", "a") as arq:
+        with open("estoque.txt", "a") as arq:
             # arq.writelines(f"{produto.id}|{produto.nome}|{produto.preco}|{produto.categoria}\n")
             arq.writelines(f"{produto}|{quantidade}\n")
 
@@ -146,9 +90,8 @@ class ClienteDal:
 
     @classmethod
     def salvar(cls, c: Cliente):
-        with open("cliente.csv", "a") as arq:
+        with open("cliente.txt", "a") as arq:
             arq.writelines(f"{c.id}|{c.nome}|{c.cpf_cnpj}|{c.telefone}|{c.email}|{c.endereco}\n")
-
 
     @classmethod
     def alterar(cls, c: Cliente):
@@ -162,10 +105,9 @@ class ClienteDal:
                 clientes[x].endereco = c.endereco if len(c.endereco) > 0 else clientes[x].endereco
                 break
         
-        with open("cliente.csv", "w") as arq:
-            for c in clientes:
-                arq.writelines(f"{c.id}|{c.nome}|{c.cpf_cnpj}|{c.telefone}|{c.email}|{c.endereco}\n")
-
+        with open("cliente.txt", "w") as arq:
+            for cl in clientes:
+                arq.writelines(f"{cl.id}|{cl.nome}|{cl.cpf_cnpj}|{cl.telefone}|{cl.email}|{cl.endereco}\n")
 
     @classmethod
     def remover(cls, c: Cliente):
@@ -175,14 +117,13 @@ class ClienteDal:
                 del clientes[x]
                 break
 
-        with open("cliente.csv", "w") as arq:
+        with open("cliente.txt", "w") as arq:
             for c in clientes:
                 arq.writelines(f"{c.id}|{c.nome}|{c.cpf_cnpj}|{c.telefone}|{c.email}|{c.endereco}\n")
 
-
     @classmethod
     def ler(cls):
-        with open("cliente.csv", "r") as arq:
+        with open("cliente.txt", "r") as arq:
             cls.clientes = arq.readlines()
 
         cls.clientes = list(map(lambda x: x.replace("\n", ""), cls.clientes))
@@ -195,92 +136,36 @@ class ClienteDal:
         return cli
 
 
-class FuncionarioDal:
-
-
-    @classmethod
-    def salvar(cls, func: Funcionario):
-        with open("funcionario.csv", "a") as arq:
-            arq.writelines(f"{func.id}|{func.matricula}|{func.nome}|{func.cpf_cnpj}|{func.telefone}|{func.email}|{func.endereco}\n")
-
-
-    @classmethod
-    def alterar(cls, func: Funcionario):
-        funcionarios = cls.ler()
-        for x in range(len(funcionarios)):
-            if funcionarios[x].id == func.id:
-                funcionarios[x].matricula = func.matricula
-                funcionarios[x].nome = func.nome
-                funcionarios[x].cpf_cnpj = func.cpf_cnpj
-                funcionarios[x].telefone = func.telefone
-                funcionarios[x].email = func.email
-                funcionarios[x].endereco = func.endereco
-                break
-        
-        with open("funcionario.csv", "w") as arq:
-            for x in funcionarios:
-                arq.writelines(f"{x.id}|{x.matricula}|{x.nome}|{x.cpf_cnpj}|{x.telefone}|{x.email}|{x.endereco}\n")
-
-
-    @classmethod
-    def remover(cls, func: Funcionario):
-        funcionarios = cls.ler()
-        for x in range(len(funcionarios)):
-            if funcionarios[x].id == func.id:
-                del funcionarios[x]
-                break
-
-        with open("funcionario.csv", "w") as arq:
-            for x in funcionarios:
-                arq.writelines(f"{x.id}|{x.matricula}|{x.nome}|{x.cpf_cnpj}|{x.telefone}|{x.email}|{x.endereco}\n")
-
-
-    @classmethod
-    def ler(cls):
-        with open("funcionario.csv", "r") as arq:
-            cls.funcionarios = arq.readlines()
-
-        cls.funcionarios = list(map(lambda x: x.replace("\n", ""), cls.funcionarios))
-        cls.funcionarios = list(map(lambda x: x.split("|"), cls.funcionarios))
-
-        funcs = []
-        for i in cls.funcionarios:
-            funcs.append(Funcionario(i[0], i[1], i[2], i[3], i[4], i[5], i[6]))
-
-        return funcs
-
-
 class FornecedorDal:
 
 
     @classmethod
     def salvar(cls, forn: Fornecedor):
-        with open("fornecedor.csv", "a") as arq:
+        with open("fornecedor.txt", "a") as arq:
             arq.writelines(
-                f"{forn.id}|{forn.ie}|{forn.nome}|{forn.cpf_cnpj}|{forn.telefone}|{forn.email}|{forn.endereco}|{forn.categoria}\n"
+                f"{forn.id}|{forn.ie}|{forn.nome}|{forn.cpf_cnpj}|{forn.telefone}|" 
+                + f"{forn.email}|{forn.endereco}|{forn.categoria.id}\n"
             )
-
 
     @classmethod
     def alterar(cls, forn: Fornecedor):
-        fornecedores = cls.ler()
-        for x in range(len(fornecedores)):
-            if fornecedores[x].id == forn.id:
-                fornecedores[x].ie = forn.ie
-                fornecedores[x].nome = forn.nome
-                fornecedores[x].cpf_cnpj = forn.cpf_cnpj
-                fornecedores[x].telefone = forn.telefone
-                fornecedores[x].email = forn.email
-                fornecedores[x].endereco = forn.endereco
-                fornecedores[x].categoria = forn.categoria
+        fo = cls.ler()
+        for x in range(len(fo)):
+            if fo[x].id == forn.id:
+                fo[x].ie = forn.ie if len(forn.ie) > 0 else fo[x].ie
+                fo[x].nome = forn.nome if len(forn.nome) > 0 else fo[x].nome
+                fo[x].cpf_cnpj = forn.cpf_cnpj if len(forn.cpf_cnpj) > 0 else fo[x].cpf_cnpj
+                fo[x].telefone = forn.telefone if len(forn.telefone) > 0 else fo[x].telefone
+                fo[x].email = forn.email if len(forn.email) > 0 else fo[x].email
+                fo[x].endereco = forn.endereco if len(forn.endereco) > 0 else fo[x].endereco
+                fo[x].categoria = forn.categoria.id
                 break
-        
-        with open("fornecedor.csv", "w") as arq:
-            for x in fornecedores:
-                arq.writelines(
-                    f"{forn.id}|{forn.ie}|{forn.nome}|{forn.cpf_cnpj}|{forn.telefone}|{forn.email}|{forn.endereco}|{forn.categoria}\n"
-                )
 
+        with open("fornecedor.txt", "w") as arq:
+            for f in fo:
+                arq.writelines(
+                    f"{f.id}|{f.ie}|{f.nome}|{f.cpf_cnpj}|{f.telefone}|{f.email}|{f.endereco}|{f.categoria}\n"
+                )
 
     @classmethod
     def remover(cls, forn: Fornecedor):
@@ -290,16 +175,15 @@ class FornecedorDal:
                 del fornecedores[x]
                 break
 
-        with open("fornecedor.csv", "w") as arq:
-            for x in fornecedores:
+        with open("fornecedor.txt", "w") as arq:
+            for f in fornecedores:
                 arq.writelines(
-                    f"{forn.id}|{forn.ie}|{forn.nome}|{forn.cpf_cnpj}|{forn.telefone}|{forn.email}|{forn.endereco}|{forn.categoria}\n"
+                    f"{f.id}|{f.ie}|{f.nome}|{f.cpf_cnpj}|{f.telefone}|{f.email}|{f.endereco}|{f.categoria}\n"
                 )
-
 
     @classmethod
     def ler(cls):
-        with open("fornecedor.csv", "r") as arq:
+        with open("fornecedor.txt", "r") as arq:
             cls.fornecedores = arq.readlines()
 
         cls.fornecedores = list(map(lambda x: x.replace("\n", ""), cls.fornecedores))
@@ -312,12 +196,115 @@ class FornecedorDal:
         return forns
 
 
+class FuncionarioDal:
+
+
+    @classmethod
+    def salvar(cls, f: Funcionario):
+        with open("funcionario.txt", "a") as arq:
+            arq.writelines(f"{f.id}|{f.matricula}|{f.nome}|{f.cpf_cnpj}|{f.telefone}|{f.email}|{f.endereco}\n")
+
+    @classmethod
+    def alterar(cls, f: Funcionario):
+        funcs = cls.ler()
+        for x in range(len(funcs)):
+            if funcs[x].id == f.id:
+                funcs[x].matricula = f.matricula if len(f.matricula) > 0 else funcs[x].matricula
+                funcs[x].nome = f.nome if len(f.nome) > 0 else funcs[x].nome
+                funcs[x].cpf_cnpj = f.cpf_cnpj if len(f.cpf_cnpj) > 0 else funcs[x].cpf_cnpj
+                funcs[x].telefone = f.telefone if len(f.telefone) > 0 else funcs[x].telefone
+                funcs[x].email = f.email.lower() if len(f.email) > 0 else funcs[x].email.lower()
+                funcs[x].endereco = f.endereco if len(f.endereco) > 0 else funcs[x].endereco
+                break
+        
+        with open("funcionario.txt", "w") as arq:
+            for x in funcs:
+                arq.writelines(f"{x.id}|{x.matricula}|{x.nome}|{x.cpf_cnpj}|{x.telefone}|{x.email}|{x.endereco}\n")
+
+    @classmethod
+    def remover(cls, func: Funcionario):
+        funcionarios = cls.ler()
+        for x in range(len(funcionarios)):
+            if funcionarios[x].id == func.id:
+                del funcionarios[x]
+                break
+
+        with open("funcionario.txt", "w") as arq:
+            for x in funcionarios:
+                arq.writelines(f"{x.id}|{x.matricula}|{x.nome}|{x.cpf_cnpj}|{x.telefone}|{x.email}|{x.endereco}\n")
+
+    @classmethod
+    def ler(cls):
+        with open("funcionario.txt", "r") as arq:
+            cls.funcionarios = arq.readlines()
+
+        cls.funcionarios = list(map(lambda x: x.replace("\n", ""), cls.funcionarios))
+        cls.funcionarios = list(map(lambda x: x.split("|"), cls.funcionarios))
+
+        funcs = []
+        for i in cls.funcionarios:
+            funcs.append(Funcionario(i[0], i[1], i[2], i[3], i[4], i[5], i[6]))
+
+        return funcs
+
+
+class ProdutoDal:
+
+
+    @classmethod
+    def salvar(cls, produto: Produto):
+        with open("produto.txt", "a") as arq:
+            arq.writelines(f"{produto.id}|{produto.nome}|{produto.preco}|{produto.categoria.id}\n")
+
+    @classmethod
+    def alterar(cls, produto: Produto):
+        prods = cls.ler()
+        for x in range(len(prods)):
+            if prods[x].id == produto.id:
+                prods[x].nome = produto.nome if len(produto.nome) > 0 else prods[x].nome
+                prods[x].preco = produto.preco if len(produto.preco) > 0 else prods[x].preco
+                prods[x].categoria = produto.categoria.id
+                break
+        
+        with open("produto.txt", "w") as arq:
+            for p in prods:
+                arq.writelines(f"{p.id}|{p.nome}|{p.preco}|{p.categoria}\n")
+
+    @classmethod
+    def remover(cls, produto: Produto):
+        produtos = cls.ler()
+        for x in range(len(produtos)):
+            if produtos[x].id == produto.id:
+                del produtos[x]
+                break
+        
+        with open("produto.txt", "w") as arq:
+            for p in produtos:
+                arq.writelines(f"{p.id}|{p.nome}|{p.preco}|{p.categoria}\n")
+
+        #TODO: remover produto do estoque
+
+    @classmethod
+    def ler(cls):
+        with open("produto.txt", "r") as arq:
+            cls.produtos = arq.readlines()
+
+        cls.produtos = list(map(lambda x: x.replace("\n", ""), cls.produtos))
+        cls.produtos = list(map(lambda x: x.split("|"), cls.produtos))
+
+        prods = []
+        for i in cls.produtos:
+            prods.append(Produto(i[0], i[1], i[2], i[3]))
+
+        return prods
+
+
 class VendaDal:
 
 
     @classmethod
     def salvar(cls, v: Venda):
-        with open("venda.csv", "a") as arq:
+        with open("venda.txt", "a") as arq:
             arq.writelines(f"{v.id}|{v.vendedor}|{v.comprador}|{v.itens}|{v.quantidade}|{v.data}\n")
 
 
@@ -333,7 +320,7 @@ class VendaDal:
                 vendas[x].data = v.data
                 break
         
-        with open("venda.csv", "w") as arq:
+        with open("venda.txt", "w") as arq:
             for v in vendas:
                 arq.writelines(f"{v.id}|{v.vendedor}|{v.comprador}|{v.itens}|{v.quantidade}|{v.data}\n")
 
@@ -346,14 +333,14 @@ class VendaDal:
                 del vendas[x]
                 break
 
-        with open("venda.csv", "w") as arq:
+        with open("venda.txt", "w") as arq:
             for v in vendas:
                 arq.writelines(f"{v.id}|{v.vendedor}|{v.comprador}|{v.itens}|{v.quantidade}|{v.data}\n")
 
 
     @classmethod
     def ler(cls):
-        with open("venda.csv", "r") as arq:
+        with open("venda.txt", "r") as arq:
             cls.vendas = arq.readlines()
 
         cls.vendas = list(map(lambda x: x.replace("\n", ""), cls.vendas))
