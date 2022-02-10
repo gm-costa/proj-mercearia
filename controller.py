@@ -81,8 +81,6 @@ class ClienteController:
                 return 1
             except:
                 return 2
-        else:
-            return 0
 
     def existe_cliente(self, cliente):
         cli = ClienteDal.ler()
@@ -95,16 +93,51 @@ class ClienteController:
 class EstoqueController:
 
 
-    def adicionar_produto(self, produto: Produto, quantidade: float):
-        pass
+    def adicionar_estoque(self, produto, quantidade: float):
+        produtos = ProdutoDal.ler()
+        prod = list(filter(lambda produtos: produtos.id == produto, produtos))
+        if len(prod) > 0:
+            try:
+                EstoqueDal.adicionar(prod[0], quantidade)
+                return 1
+            except:
+                return 2
 
+    def alterar_estoque(self, produto, quantidade: float):
+        produtos = ProdutoDal.ler()
+        prod = list(filter(lambda produtos: produtos.id == produto, produtos))
+        if len(prod) > 0:
+            try:
+                EstoqueDal.alterar(prod[0], quantidade)
+                return 1
+            except:
+                return 2
 
-    def remover_produto(self, produto: Produto, quantidade: float):
-        pass
+    def remover_estoque(self, produto):
+        produtos = ProdutoDal.ler()
+        prod = list(filter(lambda produtos: produtos.id == produto, produtos))
+        if len(prod) > 0:
+            try:
+                EstoqueDal.remover(prod[0])
+                return 1
+            except:
+                return 2
 
+    def cadastrar_produto_estoque(self, prod_nome, prod_preco, prod_cat, quantidade: float):
+        if ProdutoController.cadastrar_produto(self, prod_nome, prod_preco, prod_cat) == 1:
+            produtos = ProdutoDal.ler()
+            prod = list(filter(lambda produtos: produtos.nome == prod_nome, produtos))
+            return self.adicionar_estoque(prod[0].id, quantidade)
+        else:
+            return 2    
+
+    def existe_estoque(self, produto):
+        ests = EstoqueDal.ler()
+        est = list(filter(lambda ests: (ests.produto.id == produto or ests.produto.nome == produto), ests))
+        return len(est) > 0
 
     def listar_estoque(self):
-        pass
+        return EstoqueDal.ler()
 
 
 class FornecedorController:
@@ -251,7 +284,8 @@ class ProdutoController:
     def listar_produtos(self):
         return ProdutoDal.ler()
 
-    def existe_produto(self, produto):
+    @staticmethod
+    def existe_produto(produto):
         prods = ProdutoDal.ler()
         return len(list(filter(lambda prods: (prods.id == produto or prods.nome == produto), prods))) > 0
 

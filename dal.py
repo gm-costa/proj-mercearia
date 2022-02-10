@@ -60,31 +60,6 @@ class CategoriaDal:
         return cat
              
 
-class EstoqueDal:
-
-
-    @classmethod
-    def adicionar(cls, produto: Produto, quantidade):
-        with open("estoque.txt", "a") as arq:
-            # arq.writelines(f"{produto.id}|{produto.nome}|{produto.preco}|{produto.categoria}\n")
-            arq.writelines(f"{produto}|{quantidade}\n")
-
-
-    @classmethod
-    def remover(cls, produto: Produto, quantidade):
-        pass
-
-
-    @classmethod
-    def alterar(cls, produto: Produto, quantidade):
-        pass
-
-
-    @classmethod
-    def ler(cls):
-        pass
-
-
 class ClienteDal:
 
 
@@ -134,6 +109,55 @@ class ClienteDal:
             cli.append(Cliente(i[0], i[1], i[2], i[3], i[4], i[5]))
 
         return cli
+
+
+class EstoqueDal:
+
+
+    @classmethod
+    def adicionar(cls, produto: Produto, quantidade):
+        with open("estoque.txt", "a") as arq:
+            arq.writelines(f"{produto.id}|{quantidade}\n")
+
+    @classmethod
+    def alterar(cls, produto: Produto, quantidade):
+        estoques = cls.ler()
+        for x in range(len(estoques)):
+            if estoques[x].produto.id == produto.id:
+                estoques[x].quantidade = quantidade
+                break
+        
+        with open("estoque.txt", "w") as arq:
+            for est in estoques:
+                arq.writelines(f"{est.produto.id}|{est.quantidade}\n")
+
+    @classmethod
+    def remover(cls, produto: Produto):
+        estoques = cls.ler()
+        for x in range(len(estoques)):
+            if estoques[x].produto.id == produto.id:
+                del estoques[x]
+                break
+
+        with open("estoque.txt", "w") as arq:
+            for est in estoques:
+                arq.writelines(f"{est.produto.id}|{est.quantidade}\n")
+
+    @classmethod
+    def ler(cls):
+        with open("estoque.txt", "r") as arq:
+            cls.estoques = arq.readlines()
+
+        cls.estoques = list(map(lambda x: x.replace("\n", ""), cls.estoques))
+        cls.estoques = list(map(lambda x: x.split("|"), cls.estoques))
+
+        est = []
+        produtos = ProdutoDal.ler()
+        for i in cls.estoques:
+            prod = list(filter(lambda produtos: produtos.id == i[0], produtos))
+            est.append(Estoque(prod[0], i[1]))
+
+        return est
 
 
 class FornecedorDal:

@@ -249,6 +249,134 @@ if __name__ == "__main__":
                     except ValueError:
                         pausar("Opção inválida!")
 
+            if opcao == 3:
+                est = EstoqueController()
+                while True:
+                    menu(opcao, "Adicionar novo produto ao estoque", "Mostrar estoques cadastradas")
+                    try:
+                        decisao = int(input("Informe a sua opção: "))
+
+                        if decisao == 9:
+                            encerrar_sistema()
+                            continue
+
+                        if decisao == 8:
+                            break
+
+                        if decisao == 1:
+                            prod_busca = input("\nInforme o código do produto que deseja adicionar ao estoque: ").strip()
+                            if len(prod_busca) == 0:
+                                pausar("O código não foi informado!")
+                            elif not prod_busca.isdigit():
+                                pausar("Código inválido, tente novamente!")
+                            elif not ProdutoController.existe_produto(prod_busca):
+                                pausar("Produto não cadastrado, utilize a opção 4.")
+                            elif est.existe_estoque(prod_busca):
+                                pausar("Produto já cadastrado no estoque, utilize a opção de alteração.")
+                            else:
+                                est_qtd = input("Informe a quantidade: ").strip()
+                                if len(est_qtd) == 0:
+                                    pausar("Quantidade não informada, tente novamente!")
+                                elif not est_qtd.isdecimal():
+                                    pausar("Quantidade inválida, tente novamente!")
+                                else:
+                                    retorno = est.adicionar_estoque(prod_busca, est_qtd)
+                                    if retorno == 1:
+                                        pausar("Produto adicionado com sucesso ao estoque.")
+                                    elif retorno == 2:
+                                        pausar("Ocorreu um erro, não foi possível adicionar o produto ao estoque.")
+                        
+                        elif decisao == 2:
+                            prod_busca = input("\nInforme o código ou nome do produto que deseja alterar no estoque: ").strip()
+                            if len(prod_busca) == 0:
+                                pausar("O código não foi informado!")
+                            elif not prod_busca.isdigit():
+                                pausar("Código inválido, tente novamente!")
+                            elif not est.existe_estoque(prod_busca):
+                                pausar("Produto não cadastrado no estoque!")
+                            else:
+                                est_qtd = input("\nInforme a nova quantide do produto para o estoque: ").strip()
+                                if len(est_qtd) > 0:
+                                    retorno = est.alterar_estoque(prod_busca, est_qtd)
+                                    if retorno == 1:
+                                        pausar("Estoque da quantidade do produto alterada com sucesso.")
+                                    elif retorno == 2:
+                                        pausar("Ocorreu um erro, não foi possível alterar a quantidade do produto no estoque.")
+                                else:
+                                    pausar("Quantidade não informada, nenhuma alteração realizada!")
+
+                        elif decisao == 3:
+                            prod_busca = input("\nInforme o código ou nome do produto que deseja remover do estoque: ").strip()
+                            if len(prod_busca) == 0:
+                                pausar("O código não foi informado!")
+                            elif not prod_busca.isdigit():
+                                pausar("Código inválido, tente novamente!")
+                            elif not est.existe_estoque(prod_busca):
+                                pausar("Produto não cadastrado no estoque!.")
+                            else:
+                                retorno = est.remover_estoque(prod_busca)
+                                if retorno == 1:
+                                    pausar("Produto removido com sucesso do estoque.")
+                                elif retorno == 2:
+                                    pausar("Ocorreu um erro, não foi possível remover o produto do estoque.")
+
+                        elif decisao == 4:
+                            print("\nInforme os dados do produto que deseja cadastrar")
+                            p_nome = input("\nNome: ").strip().upper()
+                            if len(p_nome) == 0:
+                                pausar("Nome não informado, tente novamente!")
+                            elif ProdutoController.existe_produto(p_nome):
+                                pausar("Produto já cadastrado, tente novamente!")
+                            else:
+                                p_preco = input("Preço: ").strip()
+                                if not p_preco.isdecimal:
+                                    pausar("O preço não foi informado corretamente!")
+                                else:
+                                    cat_existe = False
+                                    tentativas = 0
+                                    while not cat_existe:
+                                        if tentativas == 0:
+                                            p_cat = input("Código da Categoria: ").strip()
+                                        else:
+                                            p_cat = input("Categoria não cadastrada, informe outra: ").strip()
+                                        if len(p_cat) == 0:
+                                            pausar("Categoria não informada!")
+                                        elif not p_cat.isdigit():
+                                            pausar("Categoria deve ser numérica!")
+                                        else:
+                                            cat_existe = CategoriaController().existe_categoria(p_cat)
+                                        tentativas += 1
+
+                                    est_qtd = input("Informe a quantidade: ").strip()
+                                    if len(est_qtd) == 0:
+                                        pausar("Quantidade não informada, tente novamente!")
+                                    elif not est_qtd.isdecimal():
+                                        pausar("Quantidade inválida, tente novamente!")
+                                    else:
+                                        retorno = est.cadastrar_produto_estoque(p_nome, p_preco, p_cat, est_qtd)
+                                        if retorno == 1:
+                                            pausar("Produto cadastrado e adicionado ao estoque com sucesso.")
+                                        elif retorno == 2:
+                                            pausar("Ocorreu um erro, não foi possível cadastrar o produto.")
+
+                        elif decisao == 5:
+                            limpa_tela()
+                            estoques = est.listar_estoque()
+                            if len(estoques) > 0:
+                                campos = f" {'PRODUTO':30}  {'PROD. ID':8}  {'QUANTIDADE'}"
+                                cabecalho("Estoque dos Produtos", campos, 53)
+                                for e in estoques:
+                                    print(f" {e.produto.nome[:30]:30}  {e.produto.id:8}  {float(e.quantidade):>10.2f}")
+                                print("-" * 53)
+                            else:
+                                print("Não há produtos cadastrados no estoque.")        
+                            input("\nTecle <Enter> para continuar ... ")
+                        else:
+                            pausar("Opção inválida, tente novamente.")
+
+                    except ValueError:
+                        pausar("Opção inválida!")
+
             if opcao == 4:
                 fo = FornecedorController()
                 while True:

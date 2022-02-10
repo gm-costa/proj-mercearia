@@ -12,6 +12,7 @@ class Categoria:
 
 class Produto:
 
+
     def __init__(self, id, nome, preco, categoria: Categoria):
         self.id = id
         self.nome = nome
@@ -21,23 +22,14 @@ class Produto:
 
 class Estoque:
 
+
     def __init__(self, produto: Produto, quantidade):
         self.produto = produto
         self.quantidade = quantidade
 
 
-class Venda:
-
-    def __init__(self, id, vendedor, comprador, itens: Produto, quantidade, data = datetime.now()):
-        sefl.id = id
-        self.data = data 
-        self.vendedor = vendedor
-        self.comprador = comprador
-        self.itens = itens
-        self.quantidade = quantidade
-
-
 class Pessoa:
+
 
     def __init__(self, nome, cpf_cnpj, telefone, email, endereco):
         self.nome = nome
@@ -49,6 +41,7 @@ class Pessoa:
 
 class Fornecedor(Pessoa):
 
+
     def __init__(self, id, ie, nome, cpf_cnpj, telefone, email, endereco, categoria: Categoria):
         self.id = id
         self.ie = ie
@@ -58,6 +51,7 @@ class Fornecedor(Pessoa):
 
 class Cliente(Pessoa):
 
+
     def __init__(self, id, nome, cpf_cnpj, telefone, email, endereco):
         self.id = id
         super(Cliente, self).__init__(nome, cpf_cnpj, telefone, email, endereco)
@@ -65,7 +59,20 @@ class Cliente(Pessoa):
 
 class Funcionario(Pessoa):
 
+
     def __init__(self, id, matricula, nome, cpf_cnpj, telefone, email, endereco):
         self.id = id
         self.matricula = matricula
         super(Funcionario, self).__init__(nome, cpf_cnpj, telefone, email, endereco)
+
+
+class Venda:
+
+
+    def __init__(self, id, vendedor, comprador, itens: Produto, quantidade, data = datetime.now()):
+        self.id = id
+        self.data = data 
+        self.vendedor = vendedor
+        self.comprador = comprador
+        self.itens = itens
+        self.quantidade = quantidade
