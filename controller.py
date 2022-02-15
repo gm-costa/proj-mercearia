@@ -38,7 +38,8 @@ class CategoriaController:
             except:
                 return 2
 
-    def existe_categoria(self, cat):
+    @staticmethod
+    def existe_categoria(cat):
         cats = CategoriaDal.ler()     
         return len(list(filter(lambda cats: (cats.id == cat or cats.nome == cat.upper()), cats))) > 0
 
@@ -82,7 +83,8 @@ class ClienteController:
             except:
                 return 2
 
-    def existe_cliente(self, cliente):
+    @staticmethod
+    def existe_cliente(cliente):
         cli = ClienteDal.ler()
         return len(list(filter(lambda cli: (cli.id == cliente or cli.cpf_cnpj == cliente), cli))) > 0
 
@@ -131,10 +133,20 @@ class EstoqueController:
         else:
             return 2    
 
-    def existe_estoque(self, produto):
+    @staticmethod
+    def existe_estoque(produto):
         ests = EstoqueDal.ler()
         est = list(filter(lambda ests: (ests.produto.id == produto or ests.produto.nome == produto), ests))
         return len(est) > 0
+
+    @staticmethod
+    def get_quantidade(produto):
+        ests = EstoqueDal.ler()
+        est = list(filter(lambda ests: (ests.produto.id == produto or ests.produto.nome == produto), ests))
+        if len(est) > 0:
+            return float(est[0].quantidade)
+        else:
+            return 0
 
     def listar_estoque(self):
         return EstoqueDal.ler()
@@ -189,7 +201,8 @@ class FornecedorController:
     def listar_fornecedores(self):
         return FornecedorDal.ler()
 
-    def existe_fornecedor(self, forn):
+    @staticmethod
+    def existe_fornecedor(forn):
         fo = FornecedorDal.ler()
         return len(list(filter(lambda fo: (fo.id == forn or fo.cpf_cnpj == forn), fo))) > 0
 
@@ -234,7 +247,8 @@ class FuncionarioController:
     def listar_funcionarios(self):
         return FuncionarioDal.ler()
 
-    def existe_funcionario(self, func):
+    @staticmethod
+    def existe_funcionario(func):
         fun = FuncionarioDal.ler()
         return len(list(filter(lambda fun: (fun.id == func or fun.cpf_cnpj == func), fun))) > 0
 
@@ -260,7 +274,7 @@ class ProdutoController:
             if len(alterar_campos[2]) > 0:  # categoria foi alterada
                 cat = list(filter(lambda cats: cats.id == alterar_campos[2], cats))
             else:
-                cat = list(filter(lambda cats: cats.id == prod[0].categoria, cats))
+                cat = list(filter(lambda cats: cats.id == prod[0].categoria.id, cats))
 
             prod[0].nome = alterar_campos[0]
             prod[0].preco = alterar_campos[1]
@@ -289,3 +303,71 @@ class ProdutoController:
         prods = ProdutoDal.ler()
         return len(list(filter(lambda prods: (prods.id == produto or prods.nome == produto), prods))) > 0
 
+    @staticmethod
+    def existe_produto_com_categoria(categoria):
+        cats = CategoriaDal.ler()
+        cat = list(filter(lambda cats: (cats.id == categoria or cats.nome == categoria), cats))
+        if len(cat) > 0:
+            prods = ProdutoDal.ler()
+            for x in range(len(prods)):
+                if prods[x].categoria.id == cat[0].id:
+                    return True
+            return False
+
+
+class VendaController:
+
+
+    def cadastrar_venda(self, vendedor, comprador, produto, quantidade):
+        funcs = FuncionarioDal.ler()
+        fun = list(filter(lambda funcs: (funcs.id == vendedor or funcs.nome == vendedor), funcs))
+        clientes = ClienteDal.ler()
+        cli = list(filter(lambda clientes: (clientes.id == comprador or clientes.nome == comprador), clientes))
+        prods = ProdutoDal.ler()
+        prod = list(filter(lambda prods: (prods.id == produto or prods.nome == produto), prods))
+        try:
+            id = proximo_id("venda.txt")
+            VendaDal.salvar(Venda(id, fun[0], cli[0], prod[0], quantidade))
+            EstoqueDal.alterar(prod[0], quantidade, "V")     # diminuir a quantidade do estoque
+            return 1
+        except:
+            return 2
+
+    # def alterar_venda(self, venda_id, vendedor, comprador, produto, quantidade):
+    #     vendas = VendaDal.ler()
+    #     venda = list(filter(lambda vendas: vendas.id == venda_id, vendas))
+    #     if len(venda) > 0:
+    #         funcs = FuncionarioDal.ler()
+    #         fun = list(filter(lambda funcs: funcs.id == vendedor, funcs))
+    #         clientes = ClienteDal.ler()
+    #         cli = list(filter(lambda clientes: clientes.id == comprador, clientes))
+    #         prods = ProdutoDal.ler()
+    #         prod = list(filter(lambda prods: prods.id == produto, prods))
+    #         venda[0].vendedor = fun[0]
+    #         venda[0].comprador = cli[0]
+    #         venda[0].produto = prod[0]
+    #         venda[0].quantidade = quantidade
+    #         try:
+    #             VendaDal.alterar(venda[0])
+    #             return 1
+    #         except:
+    #             return 2
+
+    def remover_venda(self, venda_id):
+        vendas = VendaDal.ler()
+        venda = list(filter(lambda vendas: vendas.id == venda_id, vendas))
+        if len(venda) > 0:
+            try:
+                VendaDal.remover(venda[0])
+                EstoqueDal.alterar(venda[0].produto, venda[0].quantidade, "C")     # aumentar a quantidade do estoque
+                return 1
+            except:
+                return 2
+
+    def listar_vendas(self):
+        return VendaDal.ler()
+
+    @staticmethod
+    def existe_venda(venda_id):
+        vendas = VendaDal.ler()
+        return len(list(filter(lambda vendas: vendas.id == venda_id, vendas))) > 0

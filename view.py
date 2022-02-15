@@ -1,6 +1,7 @@
 from curses.ascii import isdigit
 from os import path, system
 from time import sleep
+from datetime import datetime
 from controller import *
 
 
@@ -135,6 +136,8 @@ if __name__ == "__main__":
                                 pausar("Categoria não informada!")
                             elif not cat.existe_categoria(cat_busca):
                                 pausar("Categoria inexistente no cadastro, tente novamente.")
+                            elif ProdutoController.existe_produto_com_categoria(cat_busca):
+                                pausar("Categoria não pode ser removida, pois existe produto com essa categoria.")
                             else:
                                 retorno = cat.remover_categoria(cat_busca)
                                 if retorno == 1:
@@ -662,15 +665,14 @@ if __name__ == "__main__":
                                         else:
                                             cat_existe = CategoriaController().existe_categoria(p_cat)
                                     alterar_campos[2] = p_cat
-                                elif len(alterar_campos[1]) > 0:  # preço informado
-                                    if not alterar_campos[1].isdecimal:
-                                        pausar("O preço foi informado incorretamente!")
-                                    else:
-                                        retorno = pc.alterar_produto(p_busca, alterar_campos)
-                                        if retorno == 1:
-                                            pausar("Produto alterado com sucesso.")
-                                        elif retorno == 2:
-                                            pausar("Ocorreu um erro, não foi possível alterar os dados do produto.")
+                                if (len(alterar_campos[1]) > 0) and (not alterar_campos[1].isdecimal):  # preço informado
+                                    pausar("O preço foi informado incorretamente!")
+                                else:
+                                    retorno = pc.alterar_produto(p_busca, alterar_campos)
+                                    if retorno == 1:
+                                        pausar("Produto alterado com sucesso.")
+                                    elif retorno == 2:
+                                        pausar("Ocorreu um erro, não foi possível alterar os dados do produto.")
 
                         elif decisao == 3:
                             p_busca = input("\nInforme o código ou nome do produto que deseja remover: ").strip().upper()
@@ -678,6 +680,8 @@ if __name__ == "__main__":
                                 pausar("O Código ou Nome não foi informado!")
                             elif not pc.existe_produto(p_busca):
                                 pausar("Produto inexistente no cadastro, tente novamente.")
+                            elif EstoqueController.existe_estoque(p_busca):
+                                pausar("Produto não pode ser removido, pois existe no estoque.")
                             else:
                                 retorno = pc.remover_produto(p_busca)
                                 if retorno == 1:
@@ -689,10 +693,10 @@ if __name__ == "__main__":
                             limpa_tela()
                             prods = pc.listar_produtos()
                             if len(prods) > 0:
-                                campos = f" {'ID':3}  {'NOME':30}  {'PREÇO':12}  {'CATEGORIA'}"
-                                cabecalho("Produtoes Cadastrados", campos, 61)
+                                campos = f" {'ID':3}  {'NOME':30}  {'PREÇO':8}  {'CATEGORIA'}"
+                                cabecalho("Produtos Cadastrados", campos, 61)
                                 for x in prods:
-                                    print(f" {x.id:3}  {x.nome[:30]:30}  {float(x.preco):>12.2f}  {x.categoria}")
+                                    print(f" {x.id:3}  {x.nome[:30]:30}  {float(x.preco):>8.2f}  {x.categoria.nome}")
                                 print("-" * 61)
                             else:
                                 print("Não há produtos cadastrados.")
@@ -703,7 +707,85 @@ if __name__ == "__main__":
                     except ValueError:
                         pausar("Opção inválida!")
 
+            if opcao == 7:
+                vc = VendaController()
+                while True:
+                    menu(opcao, "Mostrar vendas cadastradas")
+                    try:
+                        decisao = int(input("Informe a sua opção: "))
+
+                        if decisao == 9:
+                            encerrar_sistema()
+                            continue
+
+                        if decisao == 8:
+                            break
+
+                        if decisao == 1:
+                            print("\nInforme os dados da venda que deseja cadastrar")
+                            vendedor = input("\nInforme o código ou cpf do vendedor: ").strip().upper()
+                            comprador = input("\nInforme o código ou cpf/cnpj do comprador: ").strip().upper()
+                            produto = input("\nInforme o código ou nome do produto: ").strip().upper()
+                            if len(vendedor) == 0:
+                                pausar("Vendedor não informado, tente novamente!")
+                            elif len(comprador) == 0:
+                                pausar("Comprador não informado, tente novamente!")
+                            elif len(produto) == 0:
+                                pausar("Produto não informado, tente novamente!")
+                            elif not FuncionarioController.existe_funcionario(vendedor):
+                                pausar("Vendedor não cadastrado, tente novamente!")
+                            elif not ClienteController.existe_cliente(comprador):
+                                pausar("Comprador não cadastrado, tente novamente!")
+                            elif not ProdutoController.existe_produto(produto):
+                                pausar("Produto não cadastrado, tente novamente!")
+                            else:
+                                qtd = input("\nQuantidade: ").strip()
+                                if not qtd.isdecimal or len(qtd) == 0:
+                                    pausar("A quantidade não foi informada corretamente!")
+                                elif float(qtd) > EstoqueController.get_quantidade(produto):
+                                    pausar("A quantidade é superior ao estoque.")
+                                else:
+                                    retorno = vc.cadastrar_venda(vendedor, comprador, produto, qtd)
+                                    if retorno == 1:
+                                        pausar("Venda cadastrada com sucesso.")
+                                    elif retorno == 2:
+                                        pausar("Ocorreu um erro, não foi possível cadastrar o venda.")
+
+                        elif decisao == 2:
+                            pausar("A venda não pode ser alterada, somente extornada (excluída)!")
+
+                        elif decisao == 3:
+                            p_busca = input("\nInforme o código da venda que deseja remover: ").strip()
+                            if len(p_busca) == 0:
+                                pausar("O Código não foi informado!")
+                            elif not vc.existe_venda(p_busca):
+                                pausar("Venda inexistente no cadastro, tente novamente.")
+                            else:
+                                retorno = vc.remover_venda(p_busca)
+                                if retorno == 1:
+                                    pausar("Venda removida com sucesso.")
+                                elif retorno == 2:
+                                    pausar("Ocorreu um erro, não foi possível remover a venda.")
+
+                        elif decisao == 4:
+                            limpa_tela()
+                            vendas = vc.listar_vendas()
+                            if len(vendas) > 0:
+                                campos = f" {'ID':3}  {'VENDEDOR':30}  {'COMPRADOR':30}  {'PRODUTO':30}  {'QUANTIDADE':10}  {'DATA'}"
+                                cabecalho("Vendas Cadastrados", campos, 124)
+                                for x in vendas:
+                                    dt = datetime.strptime(x.data[:10], '%Y-%m-%d').strftime('%d/%m/%Y')
+                                    print(f" {x.id:3}  {x.vendedor.nome[:30]:30}  {x.comprador.nome[:30]:30}  {x.produto.nome[:30]:30}  "
+                                          + f"{float(x.quantidade):>10.2f}  {dt}")
+                                print("-" * 124)
+                            else:
+                                print("Não há vendas cadastrados.")
+                            input("\nTecle <Enter> para continuar ... ")
+                        else:
+                            pausar("Opção inválida, tente novamente.")
+
+                    except ValueError:
+                        pausar("Opção inválida!")
+
         except ValueError:
             pausar("Opção inválida!")
-
-

@@ -1,4 +1,4 @@
-from datetime import datetime, date
+from datetime import datetime
 
 
 class Categoria:
@@ -69,10 +69,10 @@ class Funcionario(Pessoa):
 class Venda:
 
 
-    def __init__(self, id, vendedor, comprador, itens: Produto, quantidade, data = datetime.now()):
+    def __init__(self, id, vendedor: Funcionario, comprador: Cliente, produto: Produto, quantidade, data = datetime.now()):
         self.id = id
         self.data = data 
         self.vendedor = vendedor
         self.comprador = comprador
-        self.itens = itens
+        self.produto = produto
         self.quantidade = quantidade

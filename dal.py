@@ -29,8 +29,6 @@ class CategoriaDal:
             for c in cats:
                 arq.writelines(f"{c.id}|{c.nome}\n") 
 
-        #TODO: remover a categoria nos produtos relacionados
-
     @classmethod
     def remover(cls, categoria: Categoria):
         cats = cls.ler()
@@ -42,8 +40,6 @@ class CategoriaDal:
         with open("categoria.txt", "w") as arq:
             for c in cats:
                 arq.writelines(f"{c.id}|{c.nome}\n") 
-
-        #TODO: remover a categoria nos produtos relacionados
 
     @classmethod
     def ler(cls):
@@ -120,11 +116,18 @@ class EstoqueDal:
             arq.writelines(f"{produto.id}|{quantidade}\n")
 
     @classmethod
-    def alterar(cls, produto: Produto, quantidade):
+    def alterar(cls, produto: Produto, quantidade, modo="N"):
         estoques = cls.ler()
         for x in range(len(estoques)):
             if estoques[x].produto.id == produto.id:
-                estoques[x].quantidade = quantidade
+                qtd = float(estoques[x].quantidade) 
+                if modo == "N":     # normal
+                    qtd = float(quantidade)
+                elif modo == "C":   # compra/estorno
+                    qtd += float(quantidade)
+                elif modo == "V":   # venda
+                    qtd -= float(quantidade)
+                estoques[x].quantidade = str(qtd)
                 break
         
         with open("estoque.txt", "w") as arq:
@@ -287,12 +290,12 @@ class ProdutoDal:
             if prods[x].id == produto.id:
                 prods[x].nome = produto.nome if len(produto.nome) > 0 else prods[x].nome
                 prods[x].preco = produto.preco if len(produto.preco) > 0 else prods[x].preco
-                prods[x].categoria = produto.categoria.id
+                prods[x].categoria = produto.categoria
                 break
         
         with open("produto.txt", "w") as arq:
             for p in prods:
-                arq.writelines(f"{p.id}|{p.nome}|{p.preco}|{p.categoria}\n")
+                arq.writelines(f"{p.id}|{p.nome}|{p.preco}|{p.categoria.id}\n")
 
     @classmethod
     def remover(cls, produto: Produto):
@@ -304,9 +307,7 @@ class ProdutoDal:
         
         with open("produto.txt", "w") as arq:
             for p in produtos:
-                arq.writelines(f"{p.id}|{p.nome}|{p.preco}|{p.categoria}\n")
-
-        #TODO: remover produto do estoque
+                arq.writelines(f"{p.id}|{p.nome}|{p.preco}|{p.categoria.id}\n")
 
     @classmethod
     def ler(cls):
@@ -317,8 +318,10 @@ class ProdutoDal:
         cls.produtos = list(map(lambda x: x.split("|"), cls.produtos))
 
         prods = []
+        cats = CategoriaDal.ler()
         for i in cls.produtos:
-            prods.append(Produto(i[0], i[1], i[2], i[3]))
+            cat = list(filter(lambda cats: cats.id == i[3], cats))
+            prods.append(Produto(i[0], i[1], i[2], cat[0]))
 
         return prods
 
@@ -329,8 +332,9 @@ class VendaDal:
     @classmethod
     def salvar(cls, v: Venda):
         with open("venda.txt", "a") as arq:
-            arq.writelines(f"{v.id}|{v.vendedor}|{v.comprador}|{v.itens}|{v.quantidade}|{v.data}\n")
+            arq.writelines(f"{v.id}|{v.vendedor.id}|{v.comprador.id}|{v.produto.id}|{v.quantidade}|{v.data}\n")
 
+        #TODO: diminuir a quantidade do estoque
 
     @classmethod
     def alterar(cls, v: Venda):
@@ -339,15 +343,14 @@ class VendaDal:
             if vendas[x].id == v.id:
                 vendas[x].vendedor = v.vendedor
                 vendas[x].comprador = v.comprador
-                vendas[x].itens = v.itens
+                vendas[x].produto = v.produto
                 vendas[x].quantidade = v.quantidade
                 vendas[x].data = v.data
                 break
         
         with open("venda.txt", "w") as arq:
             for v in vendas:
-                arq.writelines(f"{v.id}|{v.vendedor}|{v.comprador}|{v.itens}|{v.quantidade}|{v.data}\n")
-
+                arq.writelines(f"{v.id}|{v.vendedor.id}|{v.comprador.id}|{v.produto.id}|{v.quantidade}|{v.data}\n")
 
     @classmethod
     def remover(cls, v: Venda):
@@ -359,8 +362,9 @@ class VendaDal:
 
         with open("venda.txt", "w") as arq:
             for v in vendas:
-                arq.writelines(f"{v.id}|{v.vendedor}|{v.comprador}|{v.itens}|{v.quantidade}|{v.data}\n")
+                arq.writelines(f"{v.id}|{v.vendedor.id}|{v.comprador.id}|{v.produto.id}|{v.quantidade}|{v.data}\n")
 
+        #TODO: aumentar a quantidade do estoque
 
     @classmethod
     def ler(cls):
@@ -371,7 +375,13 @@ class VendaDal:
         cls.vendas = list(map(lambda x: x.split("|"), cls.vendas))
 
         vends = []
+        vendedores = FuncionarioDal.ler()
+        compradores = ClienteDal.ler()
+        produtos = ProdutoDal.ler()
         for i in cls.vendas:
-            vends.append(Venda(i[0], i[1], i[2], i[3], i[4], i[5]))
+            vendedor = list(filter(lambda vendedores: vendedores.id == i[0], vendedores))
+            comprador = list(filter(lambda compradores: compradores.id == i[0], compradores))
+            prod = list(filter(lambda produtos: produtos.id == i[0], produtos))
+            vends.append(Venda(i[0], vendedor[0], comprador[0], prod[0], i[4], i[5]))
 
         return vends
