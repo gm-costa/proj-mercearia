@@ -334,23 +334,21 @@ class VendaDal:
         with open("venda.txt", "a") as arq:
             arq.writelines(f"{v.id}|{v.vendedor.id}|{v.comprador.id}|{v.produto.id}|{v.quantidade}|{v.data}\n")
 
-        #TODO: diminuir a quantidade do estoque
-
-    @classmethod
-    def alterar(cls, v: Venda):
-        vendas = cls.ler()
-        for x in range(len(vendas)):
-            if vendas[x].id == v.id:
-                vendas[x].vendedor = v.vendedor
-                vendas[x].comprador = v.comprador
-                vendas[x].produto = v.produto
-                vendas[x].quantidade = v.quantidade
-                vendas[x].data = v.data
-                break
+    # @classmethod
+    # def alterar(cls, v: Venda):
+    #     vendas = cls.ler()
+    #     for x in range(len(vendas)):
+    #         if vendas[x].id == v.id:
+    #             vendas[x].vendedor = v.vendedor
+    #             vendas[x].comprador = v.comprador
+    #             vendas[x].produto = v.produto
+    #             vendas[x].quantidade = v.quantidade
+    #             vendas[x].data = v.data
+    #             break
         
-        with open("venda.txt", "w") as arq:
-            for v in vendas:
-                arq.writelines(f"{v.id}|{v.vendedor.id}|{v.comprador.id}|{v.produto.id}|{v.quantidade}|{v.data}\n")
+    #     with open("venda.txt", "w") as arq:
+    #         for v in vendas:
+    #             arq.writelines(f"{v.id}|{v.vendedor.id}|{v.comprador.id}|{v.produto.id}|{v.quantidade}|{v.data}\n")
 
     @classmethod
     def remover(cls, v: Venda):
@@ -364,8 +362,6 @@ class VendaDal:
             for v in vendas:
                 arq.writelines(f"{v.id}|{v.vendedor.id}|{v.comprador.id}|{v.produto.id}|{v.quantidade}|{v.data}\n")
 
-        #TODO: aumentar a quantidade do estoque
-
     @classmethod
     def ler(cls):
         with open("venda.txt", "r") as arq:
@@ -373,15 +369,15 @@ class VendaDal:
 
         cls.vendas = list(map(lambda x: x.replace("\n", ""), cls.vendas))
         cls.vendas = list(map(lambda x: x.split("|"), cls.vendas))
-
+      
         vends = []
         vendedores = FuncionarioDal.ler()
         compradores = ClienteDal.ler()
         produtos = ProdutoDal.ler()
         for i in cls.vendas:
-            vendedor = list(filter(lambda vendedores: vendedores.id == i[0], vendedores))
-            comprador = list(filter(lambda compradores: compradores.id == i[0], compradores))
-            prod = list(filter(lambda produtos: produtos.id == i[0], produtos))
+            vendedor = list(filter(lambda vendedores: vendedores.id == i[1], vendedores))
+            comprador = list(filter(lambda compradores: compradores.id == i[2], compradores))
+            prod = list(filter(lambda produtos: produtos.id == i[3], produtos))
             vends.append(Venda(i[0], vendedor[0], comprador[0], prod[0], i[4], i[5]))
 
         return vends

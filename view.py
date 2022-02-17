@@ -1,9 +1,9 @@
-from curses.ascii import isdigit
+# from curses.ascii import isdigit
 from os import path, system
 from time import sleep
 from datetime import datetime
 from controller import *
-
+from collections import Counter
 
 lst_classes = ["categoria", "cliente", "estoque", "fornecedor", 
                "funcionario", "produto", "venda"]
@@ -36,6 +36,9 @@ def menu(opcao, *args):
             i += 1
         print("[ 9 ] Para Sair")
     else:
+        # if mnu == "estoque":
+        #     opc = []
+        # else:
         opc = ["cadastrar", "alterar", "remover"]
         if len(args) > 0:
             for a in args:
@@ -255,7 +258,7 @@ if __name__ == "__main__":
             if opcao == 3:
                 est = EstoqueController()
                 while True:
-                    menu(opcao, "Adicionar novo produto ao estoque", "Mostrar estoques cadastradas")
+                    menu(opcao, "Adicionar novo produto ao estoque", "Mostrar estoque dos produtos")
                     try:
                         decisao = int(input("Informe a sua opção: "))
 
@@ -710,7 +713,7 @@ if __name__ == "__main__":
             if opcao == 7:
                 vc = VendaController()
                 while True:
-                    menu(opcao, "Mostrar vendas cadastradas")
+                    menu(opcao, "Mostrar vendas", "Mostrar vendas por data", "Produtos mais vendidos", "Clientes que mais compraram")
                     try:
                         decisao = int(input("Informe a sua opção: "))
 
@@ -781,6 +784,55 @@ if __name__ == "__main__":
                             else:
                                 print("Não há vendas cadastrados.")
                             input("\nTecle <Enter> para continuar ... ")
+                        
+                        elif decisao == 5:
+                            limpa_tela()
+                            vendas = vc.listar_vendas() 
+                            vendas2 = sorted(vendas, key = lambda vendas: vendas.data, reverse=True)
+                            if len(vendas2) > 0:
+                                campos = f" {'ID':3}  {'VENDEDOR':30}  {'COMPRADOR':30}  {'PRODUTO':30}  {'QUANTIDADE':10}  {'DATA'}"
+                                cabecalho("Vendas Cadastrados", campos, 124)
+                                for x in vendas2:
+                                    dt = datetime.strptime(x.data[:10], '%Y-%m-%d').strftime('%d/%m/%Y')
+                                    print(f" {x.id:3}  {x.vendedor.nome[:30]:30}  {x.comprador.nome[:30]:30}  {x.produto.nome[:30]:30}  "
+                                          + f"{float(x.quantidade):>10.2f}  {dt}")
+                                print("-" * 124)
+                            else:
+                                print("Não há vendas cadastrados.")
+                            input("\nTecle <Enter> para continuar ... ")
+                        
+                        elif decisao == 6:
+                            # produtos mais vendidos
+                            limpa_tela()
+                            vendas = vc.listar_vendas()
+                            if len(vendas) > 0:
+                                vendas2 = [vendas[x].produto.nome for x in range(len(vendas))]
+                                pmv = Counter(vendas2)
+                                campos = f" {'PRODUTO':30}  {'QTD VEZES':9}"
+                                cabecalho("Produtos mais vendidos", campos, 42)
+                                for x in sorted(pmv, key = pmv.get, reverse=True):
+                                    print(f" {x[:30]:30}  {pmv[x]:>9}")
+                                print("-" * 42)
+                            else:
+                                print("Não há vendas cadastrados.")
+                            input("\nTecle <Enter> para continuar ... ")
+
+                        elif decisao == 7:
+                            # Clientes que mais compraram
+                            limpa_tela()
+                            vendas = vc.listar_vendas()
+                            if len(vendas) > 0:
+                                vendas2 = [vendas[x].comprador.nome for x in range(len(vendas))]
+                                cmc = Counter(vendas2)
+                                campos = f" {'CLIENTE':30}  {'QTD VEZES':9}"
+                                cabecalho("Clientes que mais compraram", campos, 42)
+                                for x in sorted(cmc, key = cmc.get, reverse=True):
+                                    print(f" {x[:30]:30}  {cmc[x]:>9}")
+                                print("-" * 42)
+                            else:
+                                print("Não há vendas cadastrados.")
+                            input("\nTecle <Enter> para continuar ... ")
+
                         else:
                             pausar("Opção inválida, tente novamente.")
 
