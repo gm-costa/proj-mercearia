@@ -1,10 +1,6 @@
-from ast import Pass
-from curses.ascii import isdigit
-from ntpath import join
-from time import sleep
 from model import *
 from dal import *
-from datetime import datetime, date
+from datetime import datetime
 
 
 class CategoriaController:

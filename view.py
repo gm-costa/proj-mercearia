@@ -122,14 +122,16 @@ if __name__ == "__main__":
                                 pausar("Categoria inexistente no cadastro, tente novamente.")
                             else:
                                 cat_novonome = input("\nInforme o novo nome para a categoria: ").strip().upper()
-                                if len(cat_novonome) > 0:
+                                if len(cat_novonome) == 0:
+                                    pausar("O 'novo nome' para a categoria não foi informado!")
+                                elif cat.existe_categoria(cat_novonome):
+                                    pausar("Categoria já existente no cadastro, tente novamente.")
+                                else:
                                     retorno = cat.alterar_categoria(cat_busca, cat_novonome)
                                     if retorno == 1:
                                         pausar("Categoria alterada com sucesso.")
                                     elif retorno == 2:
                                         pausar("Ocorreu um erro, não foi possível alterar a categoria.")
-                                else:
-                                    pausar("O 'novo nome' para a categoria não foi informado!")
 
                         elif op_1 == 3:
                             cat_busca = input("\nInforme o código ou nome da categoria que deseja remover: ").strip().upper()
