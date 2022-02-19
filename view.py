@@ -1,6 +1,4 @@
-# from curses.ascii import isdigit
 from os import path, system
-from time import sleep
 from datetime import datetime
 from controller import *
 from collections import Counter
@@ -55,7 +53,7 @@ def menu(opcao, *args):
 
 def pausar(texto):
     print("\n" + texto)
-    sleep(1.5)
+    input("\nTecle <Enter> para continuar ... ")
 
 
 def cabecalho(texto, campos, largura = 60):
